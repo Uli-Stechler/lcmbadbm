@@ -336,7 +336,7 @@ public class App {
     }
 
     public static long targetMarkSizeKb() {
-        return (long) blockSizeKb * numOfBlocks;
+        return (long) blockSizeKb /*     * numOfBlocks taking this out to intentionally break test     */;
     }
 
     public static long targetTxSizeKb() {
