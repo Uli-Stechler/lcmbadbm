@@ -3,6 +3,10 @@
 .settings
 .classpath
 
+slacktoken.txt
+*.txt
+/temp/
+
 IntelliJ Items
 .idea/
 *.iml
