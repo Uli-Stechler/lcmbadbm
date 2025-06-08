@@ -101,6 +101,8 @@ dependencies {
     implementation 'org.eclipse.persistence:eclipselink:3.0.2'
     implementation 'org.apache.derby:derby:10.15.2.0'
     implementation 'org.apache.derby:derbyshared:10.15.2.0'
+    implementation 'com.slack.api:slack-api-client:1.16.0'
+
 
     // Add this to prevent test errors
     testImplementation 'org.junit.jupiter:junit-jupiter:5.9.3'
@@ -120,3 +122,5 @@ jar {
         configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
     }
 }
+
+
