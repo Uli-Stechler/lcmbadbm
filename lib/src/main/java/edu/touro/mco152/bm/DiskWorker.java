@@ -1,9 +1,12 @@
 package edu.touro.mco152.bm;
 
+import edu.touro.mco152.bm.observer.RulesEngineObserver;
+import edu.touro.mco152.bm.persist.DatabaseObserver;
 import edu.touro.mco152.bm.persist.DiskRun;
 import edu.touro.mco152.bm.persist.EM;
 import edu.touro.mco152.bm.ui.Gui;
 
+import edu.touro.mco152.bm.ui.GuiRunPanelObserver;
 import jakarta.persistence.EntityManager;
 import javax.swing.*;
 import java.io.File;
@@ -51,7 +54,11 @@ public class DiskWorker extends SwingWorker<Boolean, DiskMark> {
     public DiskWorker(BenchmarkUIHandler uiHandler) {
         this.uiHandler = uiHandler;
     }
-
+    /**
+     * Executes benchmark commands in the background thread using a SimpleExecutor,
+     * then notifies all registered observers with the result.
+     * Now supports Observer Pattern for modular and extensible end-of-run behavior.
+     */
     @Override
     protected Boolean doInBackground() {
         Logger.getLogger(App.class.getName()).log(Level.INFO, "*** New worker thread started ***");
@@ -72,7 +79,7 @@ public class DiskWorker extends SwingWorker<Boolean, DiskMark> {
 
         int startFileNum = App.nextMarkNumber;
         uiHandler.displayInfo("Legend updated");
-
+        // Create command and executor
         if (App.writeTest) {
             WriteCommand writeCommand = new WriteCommand(
                     App.numOfMarks,
@@ -86,7 +93,13 @@ public class DiskWorker extends SwingWorker<Boolean, DiskMark> {
                     App.MEGABYTE,
                     uiHandler
             );
-            new SimpleExecutor().executeAll(List.of(writeCommand));
+            SimpleExecutor executor = new SimpleExecutor();
+            // Register observers
+            executor.registerObserver(new DatabaseObserver());
+            executor.registerObserver(new GuiRunPanelObserver());
+            executor.registerObserver(new RulesEngineObserver());
+            // Execute benchmark
+            executor.executeAll(List.of(writeCommand));
         }
 
         if (App.readTest && App.writeTest && !isCancelled() && uiHandler.shouldDoReadBenchmark()) {
@@ -97,7 +110,7 @@ public class DiskWorker extends SwingWorker<Boolean, DiskMark> {
                     For system drives use the WRITE and READ operations 
                     independently by doing a cold reboot after the WRITE""");
         }
-
+        // Create command and executor
         if (App.readTest) {
             ReadCommand readCommand = new ReadCommand(
                     App.numOfMarks,
@@ -110,7 +123,13 @@ public class DiskWorker extends SwingWorker<Boolean, DiskMark> {
                     App.MEGABYTE,
                     uiHandler
             );
-            new SimpleExecutor().executeAll(List.of(readCommand));
+            SimpleExecutor executor = new SimpleExecutor();
+            // Register observers
+            executor.registerObserver(new DatabaseObserver());
+            executor.registerObserver(new GuiRunPanelObserver());
+            executor.registerObserver(new RulesEngineObserver());
+            // Execute benchmark
+            executor.executeAll(List.of(readCommand));
         }
 
         App.nextMarkNumber += App.numOfMarks;

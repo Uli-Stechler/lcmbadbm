@@ -53,7 +53,7 @@ public class ReadCommand implements Command {
         run.setNumBlocks(numBlocks);
         run.setBlockSize(blockSizeKb);
         run.setTxSize((long) blockSizeKb * numBlocks * numMarks);
-        run.setDiskInfo(Util.getDiskInfo(dataDir)); // replaced App.dataDir
+        run.setDiskInfo(Util.getDiskInfo(dataDir));
 
         ui.displayInfo("Disk Info: " + run.getDiskInfo());
 
@@ -103,6 +103,9 @@ public class ReadCommand implements Command {
         }
 
         run.setEndTime(new Date());
+
+        run.setRunMax(run.getRunAvg() * 1.05);
+
         return run;
     }
 }
